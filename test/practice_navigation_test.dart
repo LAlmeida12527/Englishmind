@@ -15,6 +15,8 @@ class FakeProgressStore extends ProgressStore {
 
 void main() {
   testWidgets('botao Comecar pratica abre a tela com microfone', (tester) async {
+    // Inicializa também o mock da implementação assíncrona de preferences.
+    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(EnglishMindApp(progressStore: FakeProgressStore()));
     await tester.pumpAndSettle();
 
