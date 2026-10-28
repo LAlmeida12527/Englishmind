@@ -1,0 +1,15 @@
+.dart_tool/
+.flutter-plugins*
+.packages
+.pub-cache/
+.pub/
+build/
+.idea/
+*.iml
+.metadata
+android/local.properties
+android/key.properties
+**/flutter/ephemeral/
+**/Generated.xcconfig
+**/generated_plugin_registrant.dart
+*.log
