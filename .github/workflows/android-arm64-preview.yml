@@ -1,0 +1,85 @@
+name: EnglishMind Android arm64 preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-arm64-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: englishmind-android-arm64-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Flutter stable
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Create Android scaffold
+        run: flutter create --platforms=android --project-name englishmind .
+      - name: Microphone permission
+        run: dart run tool/configure_android.dart
+      - name: Dependencies
+        run: flutter pub get
+      - name: Static analysis and tests
+        run: |
+          flutter analyze
+          flutter test
+      - name: Build Android release APKs by ABI
+        run: flutter build apk --release --split-per-abi
+      - name: Prepare direct arm64 download
+        shell: bash
+        run: |
+          set -euo pipefail
+          source="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          test -s "$source"
+          mkdir -p dist
+          cp "$source" "dist/EnglishMind-v0.1.2-android-arm64-preview.apk"
+          sha256sum dist/*.apk > dist/SHA256SUMS.txt
+          ls -lh dist/
+      - name: Upload build artifact (backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: EnglishMind-Android-arm64-preview
+          path: dist/
+          retention-days: 14
+      - name: Create prerelease with direct APK link
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="preview-v0.1.2"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::error::Release $tag already exists. Bump version/tag rather than replacing an APK with a different signing certificate."
+            exit 1
+          fi
+          cat > release-notes.md <<'EOF'
+          EnglishMind v0.1.2 - prévia Android arm64 (Redmi e celulares Android arm64).
+
+          Inclui a correção do botão Começar prática e do fluxo de permissão do microfone, com testes automatizados.
+
+          O APK utiliza a assinatura de desenvolvimento criada na máquina de build. Não é distribuição de produção. Se uma instalação antiga usa outra assinatura, o Android exigirá desinstalar o app antigo antes de instalar esta prévia (o progresso local será perdido).
+
+          Estado atual: exercícios, gravação/reprodução e progresso local. Ainda não há IA conversacional, transcrição offline, diagnóstico de pronúncia ou sincronização Google.
+
+          Downloads: selecione o arquivo .apk para Android arm64 nesta página. Confira SHA256SUMS.txt se desejar.
+          EOF
+          gh release create "$tag"             dist/EnglishMind-v0.1.2-android-arm64-preview.apk             dist/SHA256SUMS.txt             --target "$GITHUB_SHA"             --title "EnglishMind v0.1.2 — prévia Android arm64"             --notes-file release-notes.md             --prerelease
