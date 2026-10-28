@@ -1,11 +1,7 @@
 import 'package:englishmind/main.dart';
 import 'package:englishmind/data/progress_store.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class FakeProgressStore extends ProgressStore {
-  FakeProgressStore() : super(SharedPreferencesAsync());
-
+class FakeProgressStore implements ProgressRepository {
   @override
   Future<PracticeProgress> load() async => PracticeProgress.empty();
 
@@ -15,8 +11,6 @@ class FakeProgressStore extends ProgressStore {
 
 void main() {
   testWidgets('botao Comecar pratica abre a tela com microfone', (tester) async {
-    // Inicializa também o mock da implementação assíncrona de preferences.
-    SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(EnglishMindApp(progressStore: FakeProgressStore()));
     await tester.pumpAndSettle();
 
