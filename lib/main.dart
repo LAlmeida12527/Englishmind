@@ -14,7 +14,7 @@ class EnglishMindApp extends StatefulWidget {
   const EnglishMindApp({super.key, this.progressStore});
 
   /// Permite testes isolados sem depender do armazenamento nativo.
-  final ProgressStore? progressStore;
+  final ProgressRepository? progressStore;
 
   @override
   State<EnglishMindApp> createState() => _EnglishMindAppState();
@@ -22,7 +22,7 @@ class EnglishMindApp extends StatefulWidget {
 
 class _EnglishMindAppState extends State<EnglishMindApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
-  late final ProgressStore _store;
+  late final ProgressRepository _store;
   PracticeProgress? _progress;
   String? _loadError;
   int _tab = 0;
