@@ -1,12 +1,19 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Contract between the UI and its progress storage.
+abstract class ProgressRepository {
+  Future<PracticeProgress> load();
+  Future<void> save(PracticeProgress progress);
+}
+
 /// Local prototype storage. Migrate to transactional SQLite before real sync.
-class ProgressStore {
+class ProgressStore implements ProgressRepository {
   ProgressStore(this._prefs);
   final SharedPreferencesAsync _prefs;
   static const _key = 'englishmind_progress_v1';
 
+  @override
   Future<PracticeProgress> load() async {
     final raw = await _prefs.getString(_key);
     if (raw == null) return PracticeProgress.empty();
@@ -20,6 +27,7 @@ class ProgressStore {
     }
   }
 
+  @override
   Future<void> save(PracticeProgress progress) async {
     await _prefs.setString(_key, jsonEncode(progress.toJson()));
   }
