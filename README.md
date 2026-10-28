@@ -1,4 +1,13 @@
-# EnglishMind — v0.1
+# EnglishMind — protótipo
+
+## 📱 Download direto para Android (arm64)
+
+**[Baixar EnglishMind v0.1.2 — APK arm64 (aprox. 17,6 MB)](https://github.com/LAlmeida12527/Englishmind/releases/download/preview-v0.1.2/EnglishMind-v0.1.2-android-arm64-preview.apk)**
+
+Página oficial da prévia: [EnglishMind v0.1.2](https://github.com/LAlmeida12527/Englishmind/releases/tag/preview-v0.1.2).
+
+Esta prévia corrigiu a navegação do botão **Começar prática** e mantém os exercícios, a gravação de voz e o progresso local. **Ainda não há IA conversacional.** Como o pacote usa assinatura de teste gerada no CI, pode ser necessário desinstalar o APK anterior antes de instalar o novo; isso exclui o progresso local daquela instalação.
+
 
 **Aplicativo Flutter offline-first para Android e Windows.**
 
