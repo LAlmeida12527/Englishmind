@@ -11,14 +11,18 @@ void main() {
 }
 
 class EnglishMindApp extends StatefulWidget {
-  const EnglishMindApp({super.key});
+  const EnglishMindApp({super.key, this.progressStore});
+
+  /// Permite testes isolados sem depender do armazenamento nativo.
+  final ProgressStore? progressStore;
 
   @override
   State<EnglishMindApp> createState() => _EnglishMindAppState();
 }
 
 class _EnglishMindAppState extends State<EnglishMindApp> {
-  final _store = ProgressStore(SharedPreferencesAsync());
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  late final ProgressStore _store;
   PracticeProgress? _progress;
   String? _loadError;
   int _tab = 0;
@@ -26,6 +30,7 @@ class _EnglishMindAppState extends State<EnglishMindApp> {
   @override
   void initState() {
     super.initState();
+    _store = widget.progressStore ?? ProgressStore(SharedPreferencesAsync());
     _load();
   }
 
@@ -45,7 +50,14 @@ class _EnglishMindAppState extends State<EnglishMindApp> {
   }
 
   void _openLesson(Lesson lesson) {
-    Navigator.of(context).push(MaterialPageRoute<void>(
+    // Este State fica ACIMA do MaterialApp; Navigator.of(context) aqui
+    // falhava no Android. Use o NavigatorState criado pelo MaterialApp.
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null) {
+      debugPrint('EnglishMind: navegador ainda indisponível');
+      return;
+    }
+    navigator.push(MaterialPageRoute<void>(
       builder: (_) => PracticeScreen(lesson: lesson, onCompleted: _markCompleted),
     ));
   }
@@ -54,6 +66,7 @@ class _EnglishMindAppState extends State<EnglishMindApp> {
   Widget build(BuildContext context) {
     final scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF8B8AF8), brightness: Brightness.dark);
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'EnglishMind',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
