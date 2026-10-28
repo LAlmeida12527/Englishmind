@@ -53,8 +53,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
         if (!mounted) return;
         setState(() { _recordedPath = path; _recording = false; });
       } else {
+        // record.hasPermission() solicita a permissão do Android quando necessário.
         if (!await _recorder.hasPermission()) {
-          throw StateError('Permissão do microfone não concedida.');
+          throw StateError(
+            'Microfone não autorizado. Abra Configurações > Apps > EnglishMind '
+            '> Permissões > Microfone e permita o uso para gravar.'
+          );
         }
         final dir = await getTemporaryDirectory();
         final path = '${dir.path}${Platform.pathSeparator}englishmind_${DateTime.now().microsecondsSinceEpoch}.m4a';
@@ -125,6 +129,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ],
                 ))),
                 const SizedBox(height: 16),
+                const Text('Ao tocar em Gravar, o Android pedirá acesso ao microfone '
+                  'caso você ainda não tenha autorizado. A permissão nunca é ativada '
+                  'automaticamente pelo aplicativo.'),
+                const SizedBox(height: 10),
                 FilledButton.icon(
                   onPressed: _busy ? null : _toggleRecording,
                   icon: Icon(_recording ? Icons.stop_circle_outlined : Icons.mic),
